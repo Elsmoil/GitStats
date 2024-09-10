@@ -3,7 +3,7 @@ import git
 def get_repo_data(repo_path):
     try:
         repo = git.Repo(repo_path)
-        commits = list(repo.iter_commits('master'))
+        commits = list(repo.iter_commits('main'))
 
         #Extract simple information
         repo_data = {"total_commits":
