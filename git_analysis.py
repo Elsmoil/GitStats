@@ -8,12 +8,11 @@ def get_repo_data(repo_path):
         #Extract simple information
         repo_data = {"total_commits":
                      len(commits),
-                     "last_commit_massage":
-                     commits[0].massage,
+                     "last_commit_message":
+                     commits[0].message,
                      "contributors":
                      list({commit.author.name for commit in commits}),
                      }
         return repo_data
     except Exception as e:
-        return {"error":
-                str(e)}
+        return {"error": str(e)}
