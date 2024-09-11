@@ -1,23 +1,32 @@
-from flask import Flask, jsonify
-from git_analysis import get_repo_data
+from flask import Flask, render_template
+import git
+import os
 
-#   Create a Flask instance
 app = Flask(__name__)
 
-#   Define the home route 
 @app.route('/')
 def home():
-    return "Welcome to GitStats"
+    repo_path = '/home/sami/Desktop/GitStats'  # Replace with your Git repository path
+    repo_data = get_repo_data(repo_path)
+    return render_template('index.html', 
+                            total_commits=repo_data['total_commits'], 
+                            last_commit_message=repo_data['last_commit_message'], 
+                            contributors=repo_data['contributors'])
 
-@app.route('/repo-stats')
-def repo_stats():
-    repo_path = "/home/sami/Desktop/GitStats"
-    data = get_repo_data(repo_path)
-    if "error" in data:
-        return jsonify({"Error":data['error']}), 400
-#return the error massage with 400 status code
+def get_repo_data(repo_path):
+    try:
+        repo = git.Repo(repo_path)
+        commits = list(repo.iter_commits('main'))
 
-    return jsonify(data), 200
+        repo_data = {
+            "total_commits": len(commits),
+            "last_commit_message": commits[0].message,
+            "contributors": list({commit.author.name for commit in commits}),
+        }
 
-if __name__ == "__main__":
+        return repo_data
+    except Exception as e:
+        return {"error": str(e)}
+
+if __name__ == '__main__':
     app.run(debug=True)

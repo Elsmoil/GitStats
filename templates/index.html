@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitStats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .stats {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to GitStats</h1>
+    <div class="stats">
+        <p>Total Commits: {{ total_commits }}</p>
+        <p>Last Commit Message: {{ last_commit_message }}</p>
+        <p>Contributors: {{ contributors }}</p>
+    </div>
+</body>
+</html>
