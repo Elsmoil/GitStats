@@ -4,26 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitStats</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        .stats {
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to GitStats</h1>
-    <div class="stats">
-        <p>Total Commits: {{ total_commits }}</p>
-        <p>Last Commit Message: {{ last_commit_message }}</p>
-        <p>Contributors: {{ contributors }}</p>
+    <div class="container">
+        <h1>GitStats</h1>
+        <form method="POST">
+            <input type="text" name="repo_url" placeholder="Enter Git repository URL" required>
+            <button type="submit">Analyze Repo</button>
+        </form>
+
+        {% if github_linked %}
+        <p>GitHub Linked! You can track your activity.</p>
+        {% else %}
+        <a href="/github">Link GitHub Account</a>
+        {% endif %}
+
+        {% if repo_data %}
+        <h3>Repository Stats:</h3>
+        <p><strong>Total Commits:</strong> {{ repo_data.total_commits }}</p>
+        <p><strong>Last Commit Message:</strong> {{ repo_data.last_commit_message }}</p>
+        <p><strong>Contributors:</strong> {{ repo_data.contributors }}</p>
+        <h3>Commits by Contributor:</h3>
+        <div>{{ graph_html|safe }}</div>
+        {% endif %}
     </div>
 </body>
 </html>

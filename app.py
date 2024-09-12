@@ -1,32 +1,32 @@
-from flask import Flask, render_template
-import git
+from flask import Flask, render_template, request, redirect, url_for
+from flask_dance.contrib.github import make_github_blueprint, github
+from git_analysis import get_repo_data, generate_commit_graph
 import os
 
 app = Flask(__name__)
 
-@app.route('/')
+# GitHub OAuth configuration
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")
+github_bp = make_github_blueprint(client_id=os.getenv('GITHUB_CLIENT_ID'), client_secret=os.getenv('GITHUB_CLIENT_SECRET'))
+app.register_blueprint(github_bp, url_prefix="/login")
+
+@app.route("/", methods=["GET", "POST"])
 def home():
-    repo_path = '/home/sami/Desktop/GitStats'  # Replace with your Git repository path
-    repo_data = get_repo_data(repo_path)
-    return render_template('index.html', 
-                            total_commits=repo_data['total_commits'], 
-                            last_commit_message=repo_data['last_commit_message'], 
-                            contributors=repo_data['contributors'])
+    if request.method == "POST":
+        repo_url = request.form["repo_url"]
+        repo_path = "/path/to/local/repo"  # Convert URL to local path if needed
+        repo_data = get_repo_data(repo_path)
+        graph_html = generate_commit_graph(repo_data)
+        return render_template("index.html", repo_data=repo_data, graph_html=graph_html, github_linked=github.authorized)
+    return render_template("index.html", repo_data=None, graph_html=None, github_linked=github.authorized)
 
-def get_repo_data(repo_path):
-    try:
-        repo = git.Repo(repo_path)
-        commits = list(repo.iter_commits('main'))
+# GitHub OAuth login route
+@app.route("/github")
+def github_login():
+    if not github.authorized:
+        return redirect(url_for("github.login"))
+    resp = github.get("/user")
+    return f"Welcome, {resp.json()['login']}!"
 
-        repo_data = {
-            "total_commits": len(commits),
-            "last_commit_message": commits[0].message,
-            "contributors": list({commit.author.name for commit in commits}),
-        }
-
-        return repo_data
-    except Exception as e:
-        return {"error": str(e)}
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

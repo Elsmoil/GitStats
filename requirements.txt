@@ -1,0 +1,5 @@
+Flask
+GiitPython
+plotly
+requests
+flask-dance
