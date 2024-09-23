@@ -3,31 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitStats</title>
+    <title>GitStats - GitHub Repository Analyzer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <div class="container">
-        <h1>GitStats</h1>
-        <form method="POST">
-            <input type="text" name="repo_url" placeholder="Enter Git repository URL" required>
-            <button type="submit">Analyze Repo</button>
+    <header>
+        <h1>Welcome to GitStats</h1>
+        <p>An interactive tool to analyze your GitHub repositories</p>
+        <img src="data:image/png;base64,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" alt="GitStats Logo" class="logo">
+    </header>
+    <section class="main-content">
+        <h2>Analyze Your Repository</h2>
+        <form action="/" method="POST" class="repo-form">
+            <div class="repo-form-container">
+                <label for="repo_name">Select Repository from GitHub:</label>
+                <select id="repo_name" name="repo_name">
+                    <option value="">-- Select a repository --</option>
+                    {% for repo in repos %}
+                        <option value="{{ repo.name }}">{{ repo.name }}</option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <label for="repo_url">Or Enter Repository URL:</label>
+                <input type="text" id="repo_url" name="repo_url" placeholder="https://github.com/user/repo.git">
+                <br><br>
+                <button type="submit" class="analyze-btn">Analyze Repo</button>
+                <div class="github-login">
+                    <a href="{{ url_for('github.login') }}" class="button">
+                        Link with GitHub
+                    </a>
+                </div>
+            </div>
         </form>
-
-        {% if github_linked %}
-        <p>GitHub Linked! You can track your activity.</p>
-        {% else %}
-        <a href="/github">Link GitHub Account</a>
-        {% endif %}
-
         {% if repo_data %}
-        <h3>Repository Stats:</h3>
-        <p><strong>Total Commits:</strong> {{ repo_data.total_commits }}</p>
-        <p><strong>Last Commit Message:</strong> {{ repo_data.last_commit_message }}</p>
-        <p><strong>Contributors:</strong> {{ repo_data.contributors }}</p>
-        <h3>Commits by Contributor:</h3>
-        <div>{{ graph_html|safe }}</div>
+        <div class="repo-data">
+            <h3>Repository Stats</h3>
+            <p><strong>Total Commits:</strong> {{ repo_data.total_commits }}</p>
+            <p><strong>Last Commit Message:</strong> {{ repo_data.last_commit_message }}</p>
+            <p><strong>Contributors:</strong> {{ repo_data.contributors | join(", ") }}</p>
+            
+            {% if graph_html %}
+                <div class="graph-container">
+                    {{ graph_html | safe }}
+                </div>
+            {% endif %}
+        </div>
+        {% elif error %}
+            <p class="error">{{ error }}</p>
         {% endif %}
+    </section>
+
+    <section class="coming-soon">
+        <h2>Future Projects</h2>
+        <p>Stay tuned for more exciting features, including:</p>
+        <ul>
+            <li>Detailed commit history analysis</li>
+            <li>Contributor comparison charts</li>
+            <li>Repository collaboration insights</li>
+        </ul>
+    </section>
+
+    <div class="container">
+        <div class="card">
+            <div class="top"><i class="fa-brands fa-codepen"></i></div>
+            <div class="bottom">
+                <p>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Recusandae enim, necessitatibus asperiores
+                ducimus ipsa praesentium odio earum iure adipisci corrupti.
+                </p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="top"><i class="fa-solid fa-code"></i></div>
+            <div class="bottom">
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Recusandae enim, necessitatibus asperiores
+                    ducimus ipsa praesentium odio earum iure adipisci corrupti.
+                </p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="top"><i class="fa-brands fa-css3"></i></div>
+            <div class="bottom">
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Recusandae enim, necessitatibus asperiores
+                    ducimus ipsa praesentium odio earum iure adipisci corrupti.
+                </p>
+            </div>
+        </div>
     </div>
+
+    <footer>
+        <p>© 2024 GitStats. All rights reserved.</p>
+    </footer>
+
+    <!-- Include app.js only if it exists -->
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
+

@@ -1,5 +1,5 @@
 import git
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 import plotly.io as pio
 
 def get_repo_data(repo_path):
@@ -23,15 +23,13 @@ def get_repo_data(repo_path):
         return {"error": str(e)}
 
 def generate_commit_graph(repo_data):
-    contributors = repo_data['contributors']
-    commit_counts = [repo_data['total_commits']] * len(contributors)
+    commits = repo_data["total_commits"]
+    contributors = repo_data["contributors"]
 
-    bar_chart = go.Bar(x=contributors, y=commit_counts, name='Commits by Contributor')
+    fig = go.Figure(
+        data=[go.Bar(x=contributors, y=[commits], name='Commits')],
+        layout_title_text="Commits by Contributors"
+    )
 
-    layout = go.Layout(title='Commits by Contributor',
-                       xaxis=dict(title='Contributors'),
-                       yaxis=dict(title='Number of Commits'))
-
-    fig = go.Figure(data=[bar_chart], layout=layout)
-    graph_html = pio.to_html(fig, full_html=False)
+    graph_html = fig.to_html(full_html=False)
     return graph_html

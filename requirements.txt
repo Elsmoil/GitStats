@@ -3,3 +3,4 @@ GiitPython
 plotly
 requests
 flask-dance
+flask-mysqldb

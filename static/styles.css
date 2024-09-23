@@ -1,44 +1,203 @@
-css
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #f6f9fa;
+    font-family: Arial, sans-serif;
+}
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    background-color: #f4f4f4;
 }
 
-.container {
-    width: 80%;
-    margin: auto;
-    padding: 20px;
-}
-
-h1 {
+header {
+    background-color: #343a40;
+    color: #fff;
     text-align: center;
-    color: #333;
+    padding: 1rem;
 }
 
-form {
-    margin-top: 20px;
+header .logo {
+    width: 150px;
+    margin-top: 1rem;
+    animation: spin 4s infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.main-content {
+    padding: 2rem;
     text-align: center;
 }
 
-input[type="text"] {
-    width: 300px;
+.repo-form {
+    margin-bottom: 2rem;
+}
+
+/* Wrap user input and buttons */
+.repo-form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem; /* Space between input and buttons */
+}
+
+.repo-form input {
+    width: 100%;
+    max-width: 400px; /* Maximum width to control size */
     padding: 10px;
-    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensures padding is included in width */
 }
 
-button {
-    padding: 10px 20px;
-    background-color: #5cb85c;
+.button-container {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    width: 100%;
+    max-width: 400px; /* Align with input field */
+    justify-content: center; /* Center buttons horizontally */
+}
+
+/* Button styles */
+.analyze-btn, .github-login .button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Styles for the Analyze Repo button */
+.analyze-btn {
+    background-color: #3b28a7;
     color: white;
     border: none;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #4cae4c;
+/* Hover state for Analyze Repo button */
+.analyze-btn:hover {
+    background-color: #007bff;
+    transform: scale(1.05); /* Slightly enlarge button on hover */
 }
 
-h3 {
-    margin-top: 40px;
+/* Styles for the GitHub button */
+.github-login .button {
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/* Hover state for GitHub button */
+.github-login .button:hover {
+    background-color: #555;
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+.repo-data {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.coming-soon {
+    background-color: #ffffff;
+    color: rgb(3, 2, 2);
+    padding: 2rem;
+    text-align: justify;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    text-align: justify;
+    padding: 2rem;
+    position: static;
+    width: 100%;
+    bottom: 0;
+}
+
+.container {
+    width: fit-content;
+    height: fit-content;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 2rem;
+    margin: 100px auto;
+    background: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    width: 10rem;
+    height: 14rem;
+    position: relative;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.top {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 12rem;
+    background: #5f7adb;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 1s;
+    z-index: 1;
+}
+
+.top i {
+    font-size: 3rem;
+    color: white;
+}
+
+.card:hover .top {
+    transform: translateY(-100%);
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.bottom {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 12rem;
+    padding: 1rem;
+    text-align: justify;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
+    transition: 1s;
+}
+
+.bottom h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    width: 50%;
+    text-align: start;
+}
+
+.card:hover .bottom {
+    transform: translateY(0);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
 }

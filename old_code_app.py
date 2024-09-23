@@ -66,3 +66,125 @@ def get_repo_data(repo_path):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+    
+    improved code but not complete yet 
+    
+    from flask import Flask, render_template, request, redirect, url_for
+from flask_dance.contrib.github import make_github_blueprint, github
+from flask_sqlalchemy import SQLAlchemy
+from config import config
+import os
+import git
+import plotly.graph_objects as go
+import plotly.io as pio
+
+app = Flask(__name__)
+app.config.from_object(Config)
+# GitHub OAuth configuration
+#app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")
+#github_bp = make_github_blueprint(client_id=os.getenv('GITHUB_CLIENT_ID'), client_secret=os.getenv('GITHUB_CLIENT_SECRET'))
+#app.register_blueprint(github_bp, url_prefix="/login")
+
+"""# MySQL configuration
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'GitStats_db'
+app.config['MYSQL_PASSWORD'] = '4545'
+app.config['MYSQL_DB'] = 'gitstats'
+mysql = MySQL(app)
+"""
+# SQLAlchemy MySQL setup
+db = SQLAlchemy(app)
+def get_repo_data(repo_path):
+    try:
+        repo = git.Repo(repo_path)
+        commits = list(repo.iter_commits('main'))  # Adjust if the default branch is not 'main'
+
+        repo_data = {
+            "total_commits": len(commits),
+            "last_commit_message": commits[0].message if commits else "No commits found",
+            "contributors": list({commit.author.name for commit in commits}),
+            "branches": [str(branch) for branch in repo.branches],
+        }
+        return repo_data
+    except Exception as e:
+        return {"error": str(e)}
+
+def generate_commit_graph(repo_data):
+    commits = repo_data.get("total_commits", 0)
+    contributors = repo_data.get("contributors", [])
+
+    fig = go.Figure(
+        data=[go.Bar(x=contributors, y=[commits] * len(contributors), name='Commits')],
+        layout_title_text="Commits by Contributors"
+    )
+
+    graph_html = fig.to_html(full_html=False)
+    return graph_html
+
+@app.route("/", methods=["GET", "POST"])
+def home():
+    repo_data = None
+    graph_html = None
+    repos = []
+    github_linked = github.authorized
+
+    if github_linked:
+        resp = github.get("/user/repos")
+        if resp.ok:
+            repos = resp.json()  # List of user's repositories
+
+            if request.method == "POST":
+                repo_name = request.form.get("repo_name")
+                repo_url = next((repo['clone_url'] for repo in repos if repo['name'] == repo_name), None)
+
+                if repo_url:
+                    # Clone or pull repo to a local path and analyze it
+                    repo_path = f"/tmp/{repo_name}"  # A temporary path for cloned repo
+                    if not os.path.exists(repo_path):
+                        os.system(f'git clone {repo_url} {repo_path}')
+                    else:
+                        repo = git.Repo(repo_path)
+                        origin = repo.remotes.origin
+                        origin.pull()
+
+                    repo_data = get_repo_data(repo_path)
+                    graph_html = generate_commit_graph(repo_data)
+                    
+                    # Store repository data in MySQL
+                    cur = mysql.connection.cursor()
+                    cur.execute("SELECT id FROM users WHERE github_id = %s", (github.get("/user").json()["id"],))
+                    user_id = cur.fetchone()[0]
+
+                    cur.execute("""
+                        INSERT INTO repositories (user_id, repo_name, repo_url, total_commits, last_commit_message, contributors, branches)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        ON DUPLICATE KEY UPDATE
+                        total_commits = VALUES(total_commits),
+                        last_commit_message = VALUES(last_commit_message),
+                        contributors = VALUES(contributors),
+                        branches = VALUES(branches)
+                    """, (user_id, repo_name, repo_url, repo_data["total_commits"], repo_data["last_commit_message"], ','.join(repo_data["contributors"]), ','.join(repo_data["branches"])))
+                    mysql.connection.commit()
+                    cur.close()
+
+    return render_template("index.html", repos=repos, repo_data=repo_data, graph_html=graph_html, github_linked=github_linked)
+
+@app.route("/github")
+def github_login():
+    if not github.authorized:
+        return redirect(url_for("github.login"))
+    resp = github.get("/user")
+    user_info = resp.json()
+    
+    # Store user information in MySQL
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO users (github_id, username, access_token) VALUES (%s, %s, %s) ON DUPLICATE KEY UPDATE username = VALUES(username), access_token = VALUES(access_token)",
+                (user_info["id"], user_info["login"], github.get_access_token()))
+    mysql.connection.commit()
+    cur.close()
+    
+    return f"Welcome, {user_info['login']}!"
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5500)
