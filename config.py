@@ -16,4 +16,5 @@ class Config:
     # GitHub OAuth configuration
     GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
     GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
-    GITHUB_REDIRECT_URI = 'https://gitstats.onrender.com/login/github/authorized'
+    GITHUB_REDIRECT_URI = os.getenv('GITHUB_REDIRECT_URI')
+    SECRET_KEY = os.getenv('SECRET_KEY')
