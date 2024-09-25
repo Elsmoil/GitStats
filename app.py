@@ -20,6 +20,8 @@ logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__)
 app.config.from_object(Config)
 
+app.config['GITHUB_REDIRECT_URI'] = os.getenv('GITHUB_REDIRECT_URI')
+app.secret_key = os.getenv('SECRET_KEY')
 # SQLAlchemy MySQL setup
 db = SQLAlchemy(app)
 
