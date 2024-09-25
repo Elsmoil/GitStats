@@ -8,7 +8,11 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import tempfile
 import shutil
+from dotenv import load_dotenv
 import logging
+from flask_talisman import Talisman
+
+load_dotenv() #load enviroment variables from .env
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -211,5 +215,3 @@ def github_login():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5500)
-
-

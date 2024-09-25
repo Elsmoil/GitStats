@@ -1,6 +1,7 @@
 import git
 import plotly.graph_objects as go
 import plotly.io as pio
+import logging
 
 def get_repo_data(repo_path):
     try:
@@ -23,13 +24,27 @@ def get_repo_data(repo_path):
         return {"error": str(e)}
 
 def generate_commit_graph(repo_data):
-    commits = repo_data["total_commits"]
-    contributors = repo_data["contributors"]
+    try:
+        commits = repo_data.get("total_commits", 0)
+        contributors = repo_data.get("contributors", [])
+        
+        if not contributors:
+            contributors = ["No contributors"]
+        
+        # Example graph: Commits per contributor (equal for simplicity)
+        y_values = [commits] * len(contributors)
 
-    fig = go.Figure(
-        data=[go.Bar(x=contributors, y=[commits], name='Commits')],
-        layout_title_text="Commits by Contributors"
-    )
+        # Define colors for each contributor
+        colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33FF', '#FFC300']  # Add more colors as needed
+        bar_colors = colors * (len(contributors) // len(colors) + 1)  # Repeat colors if there are many contributors
 
-    graph_html = fig.to_html(full_html=False)
-    return graph_html
+        fig = go.Figure(
+            data=[go.Bar(x=contributors, y=y_values, name='Commits', marker_color=bar_colors[:len(contributors)])],
+            layout_title_text="Commits by Contributors"
+        )
+
+        graph_html = fig.to_html(full_html=False)
+        return graph_html
+    except Exception as e:
+        logging.error(f"Error generating graph: {str(e)}")
+        return ""
