@@ -30,7 +30,7 @@ numpy==2.1.1
 oauthlib==3.2.2
 packaging==24.1
 pandas==2.2.2
-pillow==10.4.0
+pillow==12.1.1
 plotly==5.24.1
 pluggy==1.5.0
 Pygments==2.18.0
