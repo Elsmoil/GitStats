@@ -19,23 +19,10 @@
         <h2>Analyze Your Repository</h2>
         <form action="/" method="POST" class="repo-form">
             <div class="repo-form-container">
-                <label for="repo_name">Select Repository from GitHub:</label>
-                <select id="repo_name" name="repo_name">
-                    <option value="">-- Select a repository --</option>
-                    {% for repo in repos %}
-                        <option value="{{ repo.name }}">{{ repo.name }}</option>
-                    {% endfor %}
-                </select>
-                <br><br>
-                <label for="repo_url">Or Enter Repository URL:</label>
-                <input type="text" id="repo_url" name="repo_url" placeholder="https://github.com/user/repo.git">
+                <label for="repo_url">Enter Public GitHub Repository URL:</label>
+                <input type="text" id="repo_url" name="repo_url" placeholder="https://github.com/owner/repo">
                 <br><br>
                 <button type="submit" class="analyze-btn">Analyze Repo</button>
-                <div class="github-login">
-                    <a href="{{ url_for('github.login') }}" class="button">
-                        Link with GitHub
-                    </a>
-                </div>
             </div>
         </form>
         {% if repo_data %}
