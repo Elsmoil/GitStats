@@ -45,16 +45,12 @@
     const urlHint  = document.getElementById('urlHint');
 
     function isValidGithubUrl(raw) {
+        // GITHUB_RE already ensures scheme + domain are correct so URL() will not throw
         if (!GITHUB_RE.test(raw)) return false;
-        // Use the browser's URL parser to normalise before path inspection
-        try {
-            const parsed = new URL(raw);
-            // Pathname must be exactly /<owner>/<repo> (2 non-empty segments)
-            const parts = parsed.pathname.split('/').filter(Boolean);
-            return parts.length === 2;
-        } catch (_) {
-            return false;
-        }
+        const parsed = new URL(raw);
+        // Pathname must be exactly /<owner>/<repo> (2 non-empty segments)
+        const parts = parsed.pathname.split('/').filter(Boolean);
+        return parts.length === 2;
     }
 
     function setInputState(state, msg) {
@@ -109,7 +105,7 @@
                 return;
             }
 
-            if (!GITHUB_RE.test(val) || !isValidGithubUrl(val)) {
+            if (!isValidGithubUrl(val)) {
                 e.preventDefault();
                 setInputState('invalid');
                 urlInput && urlInput.focus();
