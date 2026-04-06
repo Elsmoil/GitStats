@@ -44,6 +44,19 @@
     const urlInput = document.getElementById('repo_url');
     const urlHint  = document.getElementById('urlHint');
 
+    function isValidGithubUrl(raw) {
+        if (!GITHUB_RE.test(raw)) return false;
+        // Use the browser's URL parser to normalise before path inspection
+        try {
+            const parsed = new URL(raw);
+            // Pathname must be exactly /<owner>/<repo> (2 non-empty segments)
+            const parts = parsed.pathname.split('/').filter(Boolean);
+            return parts.length === 2;
+        } catch (_) {
+            return false;
+        }
+    }
+
     function setInputState(state, msg) {
         if (!urlInput || !urlHint) return;
         urlInput.classList.remove('input-valid', 'input-invalid');
@@ -69,11 +82,7 @@
                 setInputState('neutral');
                 return;
             }
-            if (GITHUB_RE.test(val) && !val.includes('..')) {
-                setInputState('valid');
-            } else {
-                setInputState('invalid');
-            }
+            setInputState(isValidGithubUrl(val) ? 'valid' : 'invalid');
         });
 
         // Run once on load if the field is pre-filled (e.g. after error re-render)
@@ -100,7 +109,7 @@
                 return;
             }
 
-            if (!GITHUB_RE.test(val) || val.includes('..')) {
+            if (!GITHUB_RE.test(val) || !isValidGithubUrl(val)) {
                 e.preventDefault();
                 setInputState('invalid');
                 urlInput && urlInput.focus();
@@ -130,19 +139,24 @@
 
     document.querySelectorAll('[data-counter]').forEach((el) => {
         const target = parseInt(el.dataset.counter, 10);
-        if (!isNaN(target)) {
-            // Use IntersectionObserver to trigger when visible
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        animateCounter(el, target, 900);
-                        io.unobserve(el);
-                    }
-                });
-            }, { threshold: 0.3 });
-            io.observe(el);
-        }
+        if (!isNaN(target)) el.dataset.counterTarget = target;
     });
+
+    // Single shared IntersectionObserver for all counter elements
+    const counterEls = Array.from(document.querySelectorAll('[data-counter-target]'));
+    if (counterEls.length) {
+        const counterIO = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.counterTarget, 10);
+                    animateCounter(el, target, 900);
+                    counterIO.unobserve(el);
+                }
+            });
+        }, { threshold: 0.3 });
+        counterEls.forEach((el) => counterIO.observe(el));
+    }
 
     /* ----------------------------------------------------------
        5. CHART.JS  – Commits by Contributor
@@ -221,7 +235,7 @@
                             color: getThemeColors().labelColor,
                             font:  { size: 12 },
                             stepSize: 1,
-                            callback: (v) => Number.isInteger(v) ? v : '',
+                            callback: (v) => Number.isInteger(v) ? v : null,
                         },
                     },
                 },
